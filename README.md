@@ -1,4 +1,1 @@
-CIL
-===
-
-DTU Compute Image Library
+CIL===DTU Compute Image Librarywww.compute.dtu.dk##AboutThis is a University Project by Poul K. Sørensen at The Technical University  of Denmark under supervision by Anders Lindbjerg Dahl in the Fall 2013.The goal is to learn about Active Appearance Models and creating an implementation in C/C++ for the the AAM and wrappers (C++/CX) for using it with Windows Phone 8 Apps and Windows Store Apps.
