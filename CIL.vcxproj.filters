@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="modules">
+      <UniqueIdentifier>{f6be0931-3f35-4673-af5b-e932ecd24e30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\algorithms">
+      <UniqueIdentifier>{89ead270-3c67-4d32-b694-1470283ff5a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\algorithms\src">
+      <UniqueIdentifier>{bd9ad379-6e73-4b18-989d-667a89acebe5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\algorithms\include">
+      <UniqueIdentifier>{96ba48a1-06da-474c-b884-06de251c94be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\core">
+      <UniqueIdentifier>{57d07989-9555-471c-81e7-d503f43a0cbd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\core\include">
+      <UniqueIdentifier>{5cbc1a82-8981-4c05-967b-f5fdacf49c61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\core\src">
+      <UniqueIdentifier>{349b1195-bffc-4527-9ebb-f5a731cedcf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="samples">
+      <UniqueIdentifier>{c7009568-90cd-44d3-89ff-5ae45b9cb102}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="samples\AsfReaderSample">
+      <UniqueIdentifier>{2a192eb5-3a51-4de2-8674-dcffc40c3ce8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="mex">
+      <UniqueIdentifier>{4c490408-2a1f-4991-91ff-920a33082616}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="modules\core\include\cil\core\types_c.h">
+      <Filter>modules\core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\algorithms\include\cil\algorithms\algorithms.h">
+      <Filter>modules\algorithms\include</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\algorithms\CMakeLists.txt">
+      <Filter>modules\algorithms</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+    <Text Include="modules\CMakeLists.txt">
+      <Filter>modules</Filter>
+    </Text>
+    <Text Include="samples\CMakeLists.txt">
+      <Filter>samples</Filter>
+    </Text>
+    <Text Include="samples\AsfReaderSample\CMakeLists.txt">
+      <Filter>samples\AsfReaderSample</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="modules\algorithms\src\procrustes.cpp">
+      <Filter>modules\algorithms\src</Filter>
+    </ClCompile>
+    <ClCompile Include="samples\AsfReaderSample\src\main.cpp">
+      <Filter>samples\AsfReaderSample</Filter>
+    </ClCompile>
+    <ClCompile Include="mex\gpa.cpp">
+      <Filter>mex</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
