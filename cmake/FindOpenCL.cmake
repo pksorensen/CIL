@@ -77,8 +77,10 @@ if(OPENCL_FOUND)
   set(OPENCL_INCLUDE_DIRS ${OPENCL_INCLUDE_DIR})
   set(OPENCL_LIBRARIES ${OPENCL_LIBRARY})
 else(OPENCL_FOUND)
-  set(OPENCL_INCLUDE_DIRS)
-  set(OPENCL_LIBRARIES)
+  set(OPENCL_INCLUDE_DIRS CACHE PATH
+   "Single Directory for all static libraries.")
+  set(OPENCL_LIBRARIES CACHE PATH
+   "Single Directory for all static libraries.")
 endif(OPENCL_FOUND)
 
 mark_as_advanced(

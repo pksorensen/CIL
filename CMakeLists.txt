@@ -39,6 +39,6 @@ SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY
    "Single Directory for all static libraries."
    )
 
-find_package(OpenCL)
+find_package(OpenCL REQUIRED)
    
 SUBDIRS(modules samples)
