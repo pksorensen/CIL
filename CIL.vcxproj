@@ -44,7 +44,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)modules\algorithms\include;$(SolutionDir)external\eigen-eigen-5097c01bcdc4;$(SolutionDir)modules\core\include;C:\Program Files\MATLAB\R2012b\extern\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)modules\algorithms\include;$(SolutionDir)external\eigen-eigen-5097c01bcdc4;$(SolutionDir)modules\core\include;C:\Program Files\MATLAB\R2012b\extern\include;$(SolutionDir)modules\dl\include;$(INTELOCLSDKROOT)\include;$(SolutionDir)modules\opencl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -68,19 +68,32 @@
     <ClInclude Include="modules\aam\include\aam.h" />
     <ClInclude Include="modules\algorithms\CMakeLists.txt" />
     <ClInclude Include="modules\algorithms\include\cil\algorithms\algorithms.h" />
+    <ClInclude Include="modules\core\include\cil\core\core.h" />
     <ClInclude Include="modules\core\include\cil\core\types_c.h" />
+    <ClInclude Include="modules\dl\include\cil\dl\dl.h" />
+    <ClInclude Include="modules\opencl\include\cil\opencl\opencl.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
     <Text Include="modules\CMakeLists.txt" />
+    <Text Include="modules\core\CMakeLists.txt" />
+    <Text Include="modules\dl\CMakeLists.txt" />
+    <Text Include="modules\opencl\CMakeLists.txt" />
     <Text Include="samples\AsfReaderSample\CMakeLists.txt" />
     <Text Include="samples\CMakeLists.txt" />
+    <Text Include="samples\DLNNSample001\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="mex\gpa.cpp" />
     <ClCompile Include="modules\aam\src\aam.cpp" />
     <ClCompile Include="modules\algorithms\src\procrustes.cpp" />
+    <ClCompile Include="modules\core\src\system.cpp" />
+    <ClCompile Include="modules\dl\src\nn.cpp" />
+    <ClCompile Include="modules\dl\src\dl_params.cpp" />
+    <ClCompile Include="modules\dl\src\training_data.cpp" />
+    <ClCompile Include="modules\opencl\src\cl_manager.cpp" />
     <ClCompile Include="samples\AsfReaderSample\src\main.cpp" />
+    <ClCompile Include="samples\DLNNSample001\src\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

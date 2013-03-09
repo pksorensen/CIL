@@ -31,6 +31,27 @@
     <Filter Include="mex">
       <UniqueIdentifier>{4c490408-2a1f-4991-91ff-920a33082616}</UniqueIdentifier>
     </Filter>
+    <Filter Include="modules\dl">
+      <UniqueIdentifier>{7d860cf4-5c3d-4ffa-9179-7722371f8f74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\dl\include">
+      <UniqueIdentifier>{51e38908-322a-4613-aff1-2cbf55643d48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\dl\src">
+      <UniqueIdentifier>{e685807c-cec1-4f20-9777-20570c0264e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="samples\DL_NN_Sample001">
+      <UniqueIdentifier>{a18e6496-548c-461c-be49-a334d7b88a86}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\opencl">
+      <UniqueIdentifier>{2116ac2c-918e-40fa-8219-8411b7c0113f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\opencl\include">
+      <UniqueIdentifier>{0034c47e-c652-4985-8764-9dd77f8166ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\opencl\src">
+      <UniqueIdentifier>{c01c8558-8738-4dde-8803-2d30e0effa62}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="modules\core\include\cil\core\types_c.h">
@@ -41,6 +62,16 @@
     </ClInclude>
     <ClInclude Include="modules\algorithms\CMakeLists.txt">
       <Filter>modules\algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\aam\include\aam.h" />
+    <ClInclude Include="modules\dl\include\cil\dl\dl.h">
+      <Filter>modules\dl\include</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\core\include\cil\core\core.h">
+      <Filter>modules\core\include</Filter>
+    </ClInclude>
+    <ClInclude Include="modules\opencl\include\cil\opencl\opencl.h">
+      <Filter>modules\opencl\include</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -54,6 +85,18 @@
     <Text Include="samples\AsfReaderSample\CMakeLists.txt">
       <Filter>samples\AsfReaderSample</Filter>
     </Text>
+    <Text Include="modules\dl\CMakeLists.txt">
+      <Filter>modules\dl</Filter>
+    </Text>
+    <Text Include="samples\DLNNSample001\CMakeLists.txt">
+      <Filter>samples\DL_NN_Sample001</Filter>
+    </Text>
+    <Text Include="modules\opencl\CMakeLists.txt">
+      <Filter>modules\opencl</Filter>
+    </Text>
+    <Text Include="modules\core\CMakeLists.txt">
+      <Filter>modules\core</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="modules\algorithms\src\procrustes.cpp">
@@ -64,6 +107,25 @@
     </ClCompile>
     <ClCompile Include="mex\gpa.cpp">
       <Filter>mex</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\aam\src\aam.cpp" />
+    <ClCompile Include="modules\dl\src\nn.cpp">
+      <Filter>modules\dl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\dl\src\training_data.cpp">
+      <Filter>modules\dl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\dl\src\dl_params.cpp">
+      <Filter>modules\dl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="samples\DLNNSample001\src\main.cpp">
+      <Filter>samples\DL_NN_Sample001</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\opencl\src\cl_manager.cpp">
+      <Filter>modules\opencl\src</Filter>
+    </ClCompile>
+    <ClCompile Include="modules\core\src\system.cpp">
+      <Filter>modules\core\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
