@@ -30,8 +30,8 @@ int main()
 
 	
 	CLMatrix* X1 = manager.createMatrix(784,500);
-	CLMatrix* X2 = manager.createMatrix(500,500);
-	CLMatrix* X3 = manager.createMatrix(500,2000);
+	CLMatrix* X2 = manager.createMatrix(500,5000);
+	CLMatrix* X3 = manager.createMatrix(5000,2000);
 	float* Z1 = new float[X1->numel()];
 	float* Z2 = new float[X2->numel()];
 	float* Z3 = new float[X3->numel()];

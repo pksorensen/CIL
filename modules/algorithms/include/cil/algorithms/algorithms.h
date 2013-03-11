@@ -13,6 +13,28 @@ namespace cil
 	{
 		CIL_EXPORTS void test();
 		
+		template <typename Derived>
+		void knuth_shuffle(Eigen::MatrixBase<Derived> const & C_, uint m = 1)
+		{
+			Eigen::MatrixBase<Derived>& C = const_cast< Eigen::MatrixBase<Derived>& >(C_);
+
+			typename Derived::Scalar * ptr = C.derived().data();
+			typename Derived::Scalar temp;
+		
+			
+			for(int j = 0;j<m;++j)
+			{
+				int Z = C.size();
+				for(int n = 0;n<Z-1;++n)
+				{
+					int z = (rand() % (Z--))+n;
+					temp = ptr[n];				
+					ptr[n] = ptr[z];
+					ptr[z] = temp;
+				}
+			}
+		}
+
 		
 		//template <typename Derived>
 		//int gpa(const Eigen::MatrixBase<Derived>& data)
@@ -99,6 +121,10 @@ namespace cil
 		}
 
 
+
+	}
+	namespace stad
+	{
 
 	}
 }

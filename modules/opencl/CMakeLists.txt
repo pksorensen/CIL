@@ -9,6 +9,7 @@ set(CL_PUBLIC_HDR
 )
 set(CL_SRC
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/cl_manager.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/cl_matrix.cpp"
 )
 
 add_library(cil_cl SHARED  ${CL_SRC} ${CL_PUBLIC_HDR} )

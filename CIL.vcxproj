@@ -69,6 +69,7 @@
     <ClInclude Include="modules\algorithms\CMakeLists.txt" />
     <ClInclude Include="modules\algorithms\include\cil\algorithms\algorithms.h" />
     <ClInclude Include="modules\core\include\cil\core\core.h" />
+    <ClInclude Include="modules\core\include\cil\core\MatrixBaseAddons.h" />
     <ClInclude Include="modules\core\include\cil\core\types_c.h" />
     <ClInclude Include="modules\dl\include\cil\dl\dl.h" />
     <ClInclude Include="modules\opencl\include\cil\opencl\opencl.h" />
@@ -92,8 +93,17 @@
     <ClCompile Include="modules\dl\src\dl_params.cpp" />
     <ClCompile Include="modules\dl\src\training_data.cpp" />
     <ClCompile Include="modules\opencl\src\cl_manager.cpp" />
+    <ClCompile Include="modules\opencl\src\cl_matrix.cpp" />
     <ClCompile Include="samples\AsfReaderSample\src\main.cpp" />
     <ClCompile Include="samples\DLNNSample001\src\main.cpp" />
+    <ClCompile Include="samples\eigen-with-viennacl.cpp" />
+    <ClCompile Include="samples\gpu_matrix_randomnumbers.cpp" />
+    <ClCompile Include="samples\gpu_matrix_sample001.cpp" />
+    <ClCompile Include="samples\opencl_sample001.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="modules\opencl\kernels\matrix_matrix_multiplication.cl" />
+    <None Include="modules\opencl\kernels\matrix_random_fill.cl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

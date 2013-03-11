@@ -2,7 +2,10 @@
 #define __CIL_DL_H
 
 #include "cil/core/core.h"
+#include <cil/opencl/opencl.h>
+
 #include "Eigen/eigen"
+#include <vector>
 
 namespace cil
 {
@@ -29,26 +32,34 @@ struct CIL_EXPORTS DLParams
 
 	DLParams();
 	virtual ~DLParams();
-
-	DLParams( int* architecture, int n);
+	
 	DLParams( Eigen::VectorXi & architecture );
+	DLParams( int* architecture, int n);
+
 
 };
-
-struct CIL_EXPORTS TrainingData
+#define GPU_MINIBATCHES_SWAP_CHAIN 2
+class CIL_EXPORTS TrainingData
 {
 public:
-	TrainingData();
+	TrainingData(uint samples,uint attributes, uint epocs = 1, uint batch_size = 0 );
 	virtual ~TrainingData();
 	void clear();
 
 	int get_num_batches() const;
 
-	int			batch_size;
-	int			num_epochs;
-	int			num_samples;
+	uint			batch_size;
+	uint			num_epochs;
+	uint			num_samples;
+	uint			num_attributes;
+	
+	void create_minibatches();
+	cl::CLMatrix* gpu_load_minibatch(cl_uint n);
 
-
+	virtual const float* train_data() {return 0;};
+private:
+	cl::CLMatrix **	m_minibatch_swapchain;
+	IndexVector m_idx;
 };
 
 
@@ -57,21 +68,25 @@ class CIL_EXPORTS NeuralNetwork
 public:
 	NeuralNetwork(const DLParams & params=DLParams());
 
+	NeuralNetwork(NeuralNetwork const&);				// Don't Implement
+    void operator=(NeuralNetwork const&);				// Don't implement
+
 	virtual ~NeuralNetwork();
 
 
-	bool train(const TrainingData & train_data);
+	bool train(TrainingData &  train_data);
 	bool set_params(const DLParams & params);
 
-	
+	std::vector<cl::CLMatrix *> & get_weights(){return m_weights;};
 private:
 	bool			initialize();
 
 
-
+	std::vector<cl::CLMatrix *> m_weights;
+	std::vector<cl::CLMatrix *> m_activations;
 
 	DLParams		m_params;
-
+	cl::CLManager & m_clmanager;
 };
 
 

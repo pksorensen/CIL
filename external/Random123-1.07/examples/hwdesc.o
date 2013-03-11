@@ -1,0 +1,15 @@
+
+HKEY_LOCAL_MACHINE\Hardware\Description\System\CentralProcessor\0
+    Component Information    REG_BINARY    00000000000000000000000000000000
+    Identifier    REG_SZ    Intel64 Family 6 Model 58 Stepping 9
+    Configuration Data    REG_FULL_RESOURCE_DESCRIPTOR    FFFFFFFFFFFFFFFF0000000000000000
+    ProcessorNameString    REG_SZ    Intel(R) Core(TM) i7-3517U CPU @ 1.90GHz
+    VendorIdentifier    REG_SZ    GenuineIntel
+    FeatureSet    REG_DWORD    0x31193dff
+    ~MHz    REG_DWORD    0x95b
+    Update Revision    REG_BINARY    15000000
+    Previous Update Revision    REG_BINARY    15000000
+    Update Status    REG_DWORD    0x7
+    Platform Specific Field 1    REG_DWORD    0x10
+    Platform Specific Field 2    REG_BINARY    00000000
+
