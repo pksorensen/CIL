@@ -2,7 +2,8 @@
 #define __CIL_OPENCL_H
 
 #include "cil/core/core.h"
-#include "CL/opencl.h"
+#include <CL/opencl.h>
+#include <vector>
 
 namespace cil
 {
@@ -38,7 +39,37 @@ CLErrString(cl_int status) {
       { CL_MAP_FAILURE, "map failed", },
       { CL_INVALID_VALUE, "invalid value", },
       { CL_INVALID_DEVICE_TYPE, "invalid device type", },
-      { 0, NULL },
+	  { CL_INVALID_CONTEXT , "CL_INVALID_CONTEXT", },
+	{ CL_INVALID_QUEUE_PROPERTIES, "CL_INVALID_QUEUE_PROPERTIES", },
+	{ CL_INVALID_COMMAND_QUEUE , "CL_INVALID_COMMAND_QUEUE", },
+	{ CL_INVALID_HOST_PTR , "CL_INVALID_HOST_PTR", },
+	{ CL_INVALID_MEM_OBJECT , "CL_INVALID_MEM_OBJECT", },
+	{ CL_INVALID_IMAGE_FORMAT_DESCRIPTOR, "CL_INVALID_IMAGE_FORMAT_DESCRIPTOR", },
+	{ CL_INVALID_IMAGE_SIZE , "CL_INVALID_IMAGE_SIZE", },
+	{ CL_INVALID_SAMPLER, "CL_INVALID_SAMPLER", },
+	{ CL_INVALID_BINARY , "CL_INVALID_BINARY", },
+	{ CL_INVALID_BUILD_OPTIONS , "", },
+	{ CL_INVALID_PROGRAM, "", },
+	{ CL_INVALID_PROGRAM_EXECUTABLE , "", },
+	{ CL_INVALID_KERNEL_NAME , "", },
+	{ CL_INVALID_KERNEL_DEFINITION , "", },
+	{ CL_INVALID_KERNEL, "", },
+	{ CL_INVALID_ARG_INDEX , "", },
+	{ CL_INVALID_ARG_VALUE , "", },
+	{ CL_INVALID_ARG_SIZE , "", },
+	{ CL_INVALID_KERNEL_ARGS , "", },
+	{ CL_INVALID_WORK_DIMENSION , "", },
+	{ CL_INVALID_WORK_GROUP_SIZE , "", },
+	{ CL_INVALID_WORK_ITEM_SIZE, "", },
+	{ CL_INVALID_GLOBAL_OFFSET , "", },
+	{ CL_INVALID_EVENT_WAIT_LIST, "", },
+	{ CL_INVALID_EVENT , "", },
+	{ CL_INVALID_OPERATION , "", },
+	{ CL_INVALID_GL_OBJECT , "", },
+	{ CL_INVALID_BUFFER_SIZE , "", },
+	{ CL_INVALID_MIP_LEVEL , "", },
+	{ CL_INVALID_GLOBAL_WORK_SIZE , "", },
+     { 0, NULL },
    };
    static char unknown[25];
    int ii;
@@ -54,27 +85,84 @@ CLErrString(cl_int status) {
 }
 
 
-
+class CLMatrix;
 class CIL_EXPORTS CLManager
 {
 public:
-	CLManager();
-	virtual ~CLManager();
+	
+	static CLManager& getInstance();
 
+	virtual ~CLManager();
 
 	bool	initialize(const char* platform_filter=0);
 	void	cleanup();
-private:
 
+	CLMatrix* createMatrix(cl_uint n, cl_uint m, cl_uint access = CL_MEM_READ_WRITE);
+	void destroyMatrix(CLMatrix* mx);
+
+	int matrixRandomFill(CLMatrix* mx, cl_uint seed = 0);
+	CLMatrix* m_m_mul(CLMatrix* mx,CLMatrix* my,CLMatrix* result=0);
+
+	int status;
+
+private:
+	CLManager() : m_platforms_list(0), status(0)
+	{
+		status = initialize();
+	};
+	
+	CLManager(CLManager const&);				// Don't Implement
+    void operator=(CLManager const&);			// Don't implement
+
+	
+	
+	std::vector<CLMatrix*> m_buffers;
+public:
 	// OpenCL specific
 	cl_platform_id *	m_platforms_list;
 	cl_uint				m_num_platforms;
 
+	cl_device_id		m_gpu_device_id;	
 	cl_context			m_gpu_context;
+	cl_command_queue	m_gpu_queue;
+	cl_command_queue	m_gpu_queue_loader;
+
+
+	cl_device_id		m_cpu_device_id;	
 	cl_context			m_cpu_context;
+	cl_command_queue	m_cpu_queue;
+
+
+	cl_kernel			m_random_fill_kernel;
+	cl_kernel			m_matrix_multiplication_kernel;
 
 };
+class CIL_EXPORTS CLMatrix
+{
+public:
+	CLMatrix(CLManager * manager, cl_uint m=0, cl_uint n=0);
+	virtual ~CLMatrix();
+	void set_buffer(cl_mem buf){m_buffer =buf;};
+	const cl_mem & get_buffer() const {return m_buffer;} ;
+	const cl_uint numel() const {return m_rows*m_cols;};
 
+
+	Eigen::MatrixXf load_from_gpu()
+	{
+		Eigen::MatrixXf mat(m_rows,m_cols);
+		clEnqueueReadBuffer(m_manager->m_gpu_queue_loader, m_buffer, CL_TRUE, 0, sizeof(float)*numel(), mat.data(), 0, NULL, NULL);	
+		return mat;	
+	}
+
+	int			status;
+	cl_uint		m_rows;
+	cl_uint		m_cols;
+private:
+	CLManager * m_manager;
+	cl_mem		m_buffer;
+
+	
+};
 
 
 

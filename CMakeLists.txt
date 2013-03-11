@@ -8,7 +8,7 @@ set (SIMLIB_VERSION_MAJOR 1)
 set (SIMLIB_VERSION_MINOR 0)
 
 
-
+set(EXTERNAL_PATH ${PROJECT_SOURCE_DIR}/external/)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 find_package(Eigen3 REQUIRED)
 
@@ -40,5 +40,8 @@ SET (CMAKE_ARCHIVE_OUTPUT_DIRECTORY
    )
 
 find_package(OpenCL REQUIRED)
+
+set(EXTERNAL_PATH ${PROJECT_SOURCE_DIR}/external/)
+set(RANDOM123_INCLUDE_DIRS "${EXTERNAL_PATH}Random123-1.07/include")
    
 SUBDIRS(modules samples)
