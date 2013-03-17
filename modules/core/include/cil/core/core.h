@@ -28,6 +28,7 @@ namespace cil
 
 
 
+	CIL_EXPORTS char* file2string(const char* filename, const char* preamble, size_t* final_length);
 
 
 

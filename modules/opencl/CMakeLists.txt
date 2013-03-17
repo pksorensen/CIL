@@ -12,6 +12,6 @@ set(CL_SRC
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/cl_matrix.cpp"
 )
 
-add_library(cil_cl SHARED  ${CL_SRC} ${CL_PUBLIC_HDR} )
+add_library(cil_cl STATIC  ${CL_SRC} ${CL_PUBLIC_HDR} )
 TARGET_LINK_LIBRARIES(cil_cl cil_core ${OPENCL_LIBRARIES})
 set_target_properties(cil_cl PROPERTIES COMPILE_FLAGS "-D_CILAPI")

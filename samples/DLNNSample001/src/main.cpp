@@ -58,13 +58,22 @@ public:
 		f2.close();
 		f3.close();
 		f4.close();
+		
+		
+		Eigen::Matrix<unsigned char,-1,-1,Eigen::RowMajor> a(1,10);
+		a << 0, 1,2,3,4,5,6,7,8,9;
 
-		m_train_data = u_train_data.cast<float>();
-		m_train_label=u_train_label.cast<float>();
-		m_test_data=u_test_data.cast<float>();
-		m_test_label=u_test_label.cast<float>();
+		
+		//std::cout << m_train_label	<< std::endl;
 
+		m_train_data = u_train_data.cast<float>() / 255;
+		m_train_label = (u_train_label.replicate(1,10).array() == a.replicate(60000,1).array()).cast<float>();
+		m_test_data=u_test_data.cast<float>() / 255;
+		m_test_label= (u_test_label.replicate(1,10).array() == a.replicate(10000,1).array()).cast<float>();
 
+		//std::cout << m_train_label.topRows(100) << std::endl << std::endl;
+		//std::cout << m_train_data.row(5) << std::endl << std::endl;
+		
 	/*	Eigen::MatrixXf t = data.row(0).cast<float>();
 		t.resize(28,28);
 		std::cout << t.transpose() << std::endl;
@@ -77,6 +86,7 @@ public:
 	}
 
 	virtual const float* train_data() {return m_train_data.data();};
+	virtual const float* train_label_data() {return m_train_label.data();};	
 private:
 
 	Eigen::Matrix<float,-1,-1,Eigen::RowMajor> m_train_data;
@@ -90,7 +100,7 @@ private:
 int main()
 {
 	using namespace std;
-
+	srand (time(NULL));
 	
 	MNISTTrainingData data;
 
@@ -111,13 +121,31 @@ int main()
 
 	int arc[] = {784, 500, 500, 2000 , 10};
 	dl::DLParams params(arc,5);
+//	params.output = CIL_DL_LINEAR;
 
 
 	dl::NeuralNetwork nn(params);
 	nn.train(data);
-	cl::CLMatrix* m = nn.get_weights().at(2);
-	Eigen::MatrixXf mat = m->load_from_gpu();
 
+//	cl::CLMatrix* m = nn.get_weights().at(3);
+	//Eigen::MatrixXf mat = m->load_from_gpu();
+	//std::cout << mat.row(0) << std::endl;
+//	std::cout << m->m_rows << " " << m->m_cols<<std::endl;
+
+	cl::CLMatrix* m1 = nn.get_activations().at(3);
+	Eigen::MatrixXf act = m1->load_from_gpu();
+	std::cout << act << std::endl<<std::endl;
+	//std::cout << m1->m_rows << " " << m1->m_cols<<std::endl;
+
+
+
+	
+	//Eigen::MatrixXf datainput = data.gpu_load_minibatch(0)->load_from_gpu();
+	//std::cout << datainput.row(0) << std::endl << std::endl;
+	//std::cout << datainput.row(5) << std::endl << std::endl;
+
+	Eigen::MatrixXf errors = nn.get_elementwise_error()->load_from_gpu();
+	std::cout << errors << std::endl <<errors.sum()/100/2 << std::endl;
 
 	return 0;
 }

@@ -9,40 +9,8 @@ using namespace cl;
 
 
 
-char* file2string(const char* filename, const char* preamble, size_t* final_length) {
-        FILE * file_stream = NULL;
-        size_t source_length;
 
-        // open the OpenCL source code file
-  file_stream = fopen(filename, "rb");
-  if(!file_stream) return NULL;
-        //if(fopen_s(&file_stream, filename, "rb") != 0) return NULL;
-
-        size_t preamble_length = strlen(preamble);
-
-        // get the length of the source code
-        fseek(file_stream, 0, SEEK_END); 
-        source_length = ftell(file_stream);
-        fseek(file_stream, 0, SEEK_SET); 
-
-        // allocate a buffer for the source code string and read it in
-        char* source_str = (char *)malloc(source_length + preamble_length + 1); 
-        memcpy(source_str, preamble, preamble_length);
-        if (fread((source_str) + preamble_length, source_length, 1, file_stream) != 1) {
-                fclose(file_stream);
-                free(source_str);
-                return 0;
-        }
-
-        // close the file and return the total length of the combined (preamble + source) string
-        fclose(file_stream);
-        if(final_length != 0) 
-                *final_length = source_length + preamble_length;
-        source_str[source_length + preamble_length] = '\0';
-
-        return source_str;
-};
-
+int CLManager::count = 0;
 
 CLManager::~CLManager()
 {
@@ -67,6 +35,7 @@ CLManager& CLManager::getInstance()
 }
 bool CLManager::initialize( const char* platform_filter)
 {
+	 CLManager::count++;
 	bool error = true;
 	int err;                            // error code returned from api calls
 
@@ -145,7 +114,7 @@ bool CLManager::initialize( const char* platform_filter)
 	size_t length[3] = {0};
 	const char * sourceStr[] = {
 		file2string("C:/Development/CIL/modules/opencl/kernels/matrix_random_fill.cl","",&length[0]),
-		file2string("C:/Development/CIL/modules/opencl/kernels/matrix_matrix_multiplication.cl","",&length[1])
+		file2string("C:/Development/CIL/modules/opencl/kernels/nn_feedforward.cl","",&length[1])
 							};
 
 	
@@ -163,21 +132,22 @@ bool CLManager::initialize( const char* platform_filter)
                   "-IC:/Development/CIL/external/Random123-1.07/include -D ACTIVATION_FUNCTION(X)=(1.7159f*tanh(2.0f/3.0f*X))",   // Compiler options, see the specifications for more details
                  0, //void (*pfn_notify)(cl_program, void *user_data), 
                  0);
-
 	if ( err != CL_SUCCESS )
 		ERROR(err, CLErrString(err));
 
-	m_random_fill_kernel= clCreateKernel (p,   // The program where the kernel is
+	m_kernel_random_fill= clCreateKernel (p,   // The program where the kernel is
          "matrix_random_fill",   // The name of the kernel, i.e. the name of the kernel function as it's declared in the code
          &err);
 	if ( err != CL_SUCCESS )
 			ERROR(err, CLErrString(err));
 		
-	m_matrix_multiplication_kernel= clCreateKernel (p,   // The program where the kernel is
-         "matrix_matrix_mul",   // The name of the kernel, i.e. the name of the kernel function as it's declared in the code
+	m_kernel_nnfeedforward= clCreateKernel (p,   // The program where the kernel is
+         "nn_feedforward",   // The name of the kernel, i.e. the name of the kernel function as it's declared in the code
          &err);
 	if ( err != CL_SUCCESS )
 			ERROR(err, CLErrString(err));
+
+	cl_program
 
 
 	error = false;
@@ -186,56 +156,7 @@ bool CLManager::initialize( const char* platform_filter)
 
 	return error;
 }
-CLMatrix* CLManager::m_m_mul(CLMatrix* mx,CLMatrix* my,CLMatrix* result)
-{
-	cl_int err = true;
-	
-	CLMatrix* res = result!=0? result : createMatrix(mx->m_rows, my->m_cols);
-	assert(res!=0);
 
-	FUNCNAME( "CLManager::initialize" );
-
-	__BEGIN__	
-
-	err |= clSetKernelArg ( m_matrix_multiplication_kernel,0, sizeof(cl_mem),&res->get_buffer());
-	err |= clSetKernelArg ( m_matrix_multiplication_kernel,1, sizeof(cl_mem),&mx->get_buffer());
-	err |= clSetKernelArg ( m_matrix_multiplication_kernel,2, sizeof(cl_mem),&my->get_buffer());
-	err |= clSetKernelArg ( m_matrix_multiplication_kernel,3, sizeof(cl_uint),&mx->m_cols);
-	err |= clSetKernelArg ( m_matrix_multiplication_kernel,4, sizeof(cl_uint),&my->m_cols);
-	err |= clSetKernelArg ( m_matrix_multiplication_kernel,5, sizeof(cl_uint),&mx->m_rows);
-
-	cl_uint local_ws[] = {16,16};
-	while(local_ws[0] >  my->m_cols)
-		local_ws[0] /=2;
-	local_ws[1] = 256 / local_ws[0];
-
-	while(local_ws[1] >  mx->m_rows)
-		local_ws[1] /=2;
-	
-	while(local_ws[0]*2 <  my->m_cols && local_ws[0]*local_ws[1]<256)
-		local_ws[0] *=2;
-	
-
-	cl_uint global_ws[] = {local_ws[0],local_ws[1]};
-	while(global_ws[0] < my->m_cols)
-		global_ws[0] += local_ws[0];
-	while(global_ws[1] < mx->m_rows)
-		global_ws[1] += local_ws[1];
-
-	err = clEnqueueNDRangeKernel(m_gpu_queue, m_random_fill_kernel, 2, NULL, global_ws, local_ws, 0, NULL, NULL);
-	if ( err != CL_SUCCESS )
-			ERROR(err, CLErrString(err));
-	
-	err = CL_SUCCESS;
-	__END__
-
-	if (err != CL_SUCCESS && !result)
-	{
-		destroyMatrix(res);
-	}
-
-	return res;
-}
 int CLManager::matrixRandomFill(CLMatrix* mx, cl_uint seed )
 {
 	cl_uint size = mx->numel();
@@ -247,16 +168,16 @@ int CLManager::matrixRandomFill(CLMatrix* mx, cl_uint seed )
 
 	__BEGIN__
 
-	err |= clSetKernelArg ( m_random_fill_kernel,0,	sizeof(cl_uint),&seed);
-	err |= clSetKernelArg ( m_random_fill_kernel,1, sizeof(cl_mem),	&buf);
-	err |= clSetKernelArg ( m_random_fill_kernel,2,	sizeof(cl_uint),&size);
+	err = clSetKernelArg ( m_kernel_random_fill,0,	sizeof(cl_uint),&seed);
+	err |= clSetKernelArg ( m_kernel_random_fill,1, sizeof(cl_mem),	&buf);
+	err |= clSetKernelArg ( m_kernel_random_fill,2,	sizeof(cl_uint),&size);
 
 	// Launching kernel
 	size = size/4+(size%4!=0);
 	const size_t local_ws = 256;	// Number of work-items per work-group
 // shrRoundUp returns the smallest multiple of local_ws bigger than size
 	const size_t global_ws = ((size) / local_ws)*local_ws + (size%local_ws!=0)*local_ws;	// Total number of work-items
-	err = clEnqueueNDRangeKernel(m_gpu_queue, m_random_fill_kernel, 1, NULL, &global_ws, &local_ws, 0, NULL, NULL);
+	err = clEnqueueNDRangeKernel(m_gpu_queue, m_kernel_random_fill, 1, NULL, &global_ws, &local_ws, 0, NULL, NULL);
 	if ( err != CL_SUCCESS )
 			ERROR(err, CLErrString(err));
 
@@ -268,7 +189,7 @@ int CLManager::matrixRandomFill(CLMatrix* mx, cl_uint seed )
 
 	return error;
 }
-CLMatrix* CLManager::createMatrix(cl_uint m, cl_uint n,cl_uint access)
+CLMatrix* CLManager::createMatrix(cl_uint m, cl_uint n, float* data,cl_uint access )
 {
 	int error = true;
 	CLMatrix* mx = new CLMatrix(this,m,n);
@@ -282,18 +203,25 @@ CLMatrix* CLManager::createMatrix(cl_uint m, cl_uint n,cl_uint access)
 		access, n*m* sizeof(cl_float), NULL, &error ));
 	if ( error != CL_SUCCESS )
 			ERROR(error, CLErrString(error));
-
+	
+	if(data!=0){
+		error = clEnqueueWriteBuffer(m_gpu_queue_loader,mx->get_buffer(),CL_TRUE,
+			0,sizeof(float)*m*n,data,0,0,0);
+		if ( error != CL_SUCCESS )
+			ERROR(error, CLErrString(error));
+	}
 
 	mx->status = error;
 	__END__
+	
 	
 	if (error != CL_SUCCESS)
 	{
 		delete mx;
 		mx=0;
-	}
-	else
+	}else
 		m_buffers.push_back(mx);
+
 	return mx;
 	
 }
@@ -302,4 +230,111 @@ void CLManager::destroyMatrix(CLMatrix* mx)
 
 	m_buffers.erase(std::remove(m_buffers.begin(), m_buffers.end(), mx), m_buffers.end());
 	delete mx;
+}
+
+
+int CLManager::load_mm_mult_kernel()
+{
+	int err = true;
+	FUNCNAME( "CLManager::load_mm_mult_kernel" );
+
+
+	__BEGIN__
+
+	size_t length[1] = {0};
+	const char * sourceStr[] = {
+		file2string("C:/Development/CIL/modules/opencl/kernels/m_m_mul2.cl","",&length[0])
+	};
+		
+	cl_program p= clCreateProgramWithSource( m_gpu_context,
+                  1,   // number of files
+                  sourceStr,   // array of strings, each one is a file
+                  (size_t*)length,   // array specifying the file lengths
+                  &err);   // error code to be returned
+	if ( err != CL_SUCCESS )
+			ERROR(err, CLErrString(err));
+	
+	cl_int err = clBuildProgram (p, 
+                  1,
+				  &m_gpu_device_id,
+                  "-DBLOCK_SIZE=16",
+                 0, //void (*pfn_notify)(cl_program, void *user_data), 
+                 0);
+	if ( err != CL_SUCCESS )
+		ERROR(err, CLErrString(err));
+	
+	m_kernel_mm_mult= clCreateKernel (p,   // The program where the kernel is
+         "m_m_mul",   // The name of the kernel, i.e. the name of the kernel function as it's declared in the code
+         &err);
+	if ( err != CL_SUCCESS )
+			ERROR(err, CLErrString(err));
+
+		err = false;
+	__END__
+
+	return err;
+}
+
+int CLManager::matrix_matrix_multiplication(CLMatrix* A, CLMatrix* B, CLMatrix*C)
+{
+	int err = true;
+	FUNCNAME( "CLManager::matrix_matrix_multiplication" );
+
+
+	__BEGIN__
+	
+	if (!isloaded_mm_mult_kernel())
+		load_mm_mult_kernel();
+	
+	int block_size = 16;
+	size_t local_ws[] = {block_size,block_size};
+	size_t global_ws[] = {block_size,block_size};
+	while(global_ws[0] < B->m_cols)
+		global_ws[0] += local_ws[0];
+	while(global_ws[1] < A->m_rows)
+		global_ws[1] += local_ws[1];
+	int lw = global_ws[1];
+	err = clSetKernelArg ( m_kernel_mm_mult,0,	sizeof(cl_mem),&A->get_buffer());
+	err |= clSetKernelArg ( m_kernel_mm_mult,1, sizeof(cl_mem),&B->get_buffer());
+	err |= clSetKernelArg ( m_kernel_mm_mult,2,	sizeof(cl_mem),&C->get_buffer());
+	//err |= clSetKernelArg ( m_kernel_mm_mult,3,	sizeof(float)*block_size*block_size,0);
+	//err |= clSetKernelArg ( m_kernel_mm_mult,4,	sizeof(float)*block_size*block_size,0);
+	err |= clSetKernelArg ( m_kernel_mm_mult,3,	sizeof(cl_int),&A->m_cols);
+	err |= clSetKernelArg ( m_kernel_mm_mult,4,	sizeof(cl_int),&B->m_cols);
+	err |= clSetKernelArg ( m_kernel_mm_mult,5,	sizeof(cl_int), &lw);
+	
+	//err |= clSetKernelArg ( m_kernel_mm_mult,3,	sizeof(float)*A->m_cols,NULL);	
+	//err |= clSetKernelArg ( m_kernel_mm_mult,3,	sizeof(cl_uint),&A->m_cols);
+
+	if ( err != CL_SUCCESS )
+		ERROR(err, CLErrString(err));
+	
+	//size_t local_ws[] = {1,256};
+	//while (local_ws[1]>A->m_rows)
+	//	local_ws[1] /= 2;
+
+	//size_t global_ws[] = {B->m_cols,local_ws[1]};
+	//while(global_ws[1] < A->m_rows)
+	//	global_ws[1]+=local_ws[1];
+	
+
+
+	err = clEnqueueNDRangeKernel(m_gpu_queue, m_kernel_mm_mult, 2, NULL, global_ws, local_ws, 0, NULL, 0);
+	if ( err != CL_SUCCESS )
+			ERROR(err, CLErrString(err));
+
+//	float* check = new float[mx->numel()];
+//	clEnqueueReadBuffer(m_gpu_queue, buf, CL_TRUE, 0, sizeof(float)*mx->numel(), check, 0, NULL, NULL);
+	//clFinish(m_gpu_queue);
+
+	err = false;
+	__END__
+
+	return err;
+}
+int CLManager::load_gpu_data(CLMatrix* mx,float*data)
+{
+	return clEnqueueReadBuffer(m_gpu_queue,mx->get_buffer(),CL_TRUE,0,
+		sizeof(float)*mx->m_rows*mx->m_cols,data,0,0,0);
+
 }

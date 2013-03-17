@@ -13,13 +13,13 @@ __kernel void matrix_random_fill(unsigned seed, __global float *matrix, unsigned
 	r = threefry4x32(c, k);
 	
 	if(idx < num)
-	matrix[idx++] = u01_open_open_32_24(r.v[0]);
+	matrix[idx++] = u01_open_open_32_24(r.v[0])/10 - 0.05f ;
 	if(idx < num)
-	matrix[idx++] = u01_open_open_32_24(r.v[1]);
+	matrix[idx++] = u01_open_open_32_24(r.v[1])/10 - 0.05f;
 	if(idx < num)
-	matrix[idx++] = u01_open_open_32_24(r.v[2]);
+	matrix[idx++] = u01_open_open_32_24(r.v[2])/10 -0.05f;
 	if(idx < num)
-	matrix[idx] = u01_open_open_32_24(r.v[3]);
+	matrix[idx] = u01_open_open_32_24(r.v[3])/10 -0.05f;
 };
 
 //-cl-fast-relaxed-math -DMAC

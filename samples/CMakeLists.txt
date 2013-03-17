@@ -15,7 +15,14 @@ endforeach(dir)
 
 
 add_executable(gpu_matrix_sample001 "${CMAKE_CURRENT_SOURCE_DIR}/gpu_matrix_sample001.cpp")
+TARGET_LINK_LIBRARIES(gpu_matrix_sample001 cil_cl ${OPENCL_LIBRARIES})
 set_target_properties(gpu_matrix_sample001 PROPERTIES COMPILE_FLAGS /I"${EXTERNAL_PATH}")
+set_property(TARGET gpu_matrix_sample001 APPEND PROPERTY INCLUDE_DIRECTORIES "${CIL_MODULES_PATH}/core/include/")
+set_property(TARGET gpu_matrix_sample001 APPEND PROPERTY INCLUDE_DIRECTORIES "${CIL_MODULES_PATH}/opencl/include/")
+set_property(TARGET gpu_matrix_sample001 APPEND PROPERTY INCLUDE_DIRECTORIES "${OPENCL_INCLUDE_DIRS}")
+set_property(TARGET gpu_matrix_sample001 APPEND PROPERTY INCLUDE_DIRECTORIES "${RANDOM123_INCLUDE_DIRS}")
+set_property(TARGET gpu_matrix_sample001 APPEND PROPERTY INCLUDE_DIRECTORIES "${CIL_MODULES_PATH}/dl/include/")
+
 
 add_executable(eigen-with-viennacl "${CMAKE_CURRENT_SOURCE_DIR}/eigen-with-viennacl.cpp")
 set_target_properties(eigen-with-viennacl PROPERTIES COMPILE_FLAGS /I"${EXTERNAL_PATH}")

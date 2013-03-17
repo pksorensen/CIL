@@ -4,6 +4,7 @@
 #include "cil/core/core.h"
 #include <CL/opencl.h>
 #include <vector>
+#include <time.h>
 
 namespace cil
 {
@@ -52,7 +53,7 @@ CLErrString(cl_int status) {
 	{ CL_INVALID_PROGRAM, "", },
 	{ CL_INVALID_PROGRAM_EXECUTABLE , "", },
 	{ CL_INVALID_KERNEL_NAME , "", },
-	{ CL_INVALID_KERNEL_DEFINITION , "", },
+	{ CL_INVALID_KERNEL_DEFINITION , "CL_INVALID_KERNEL_DEFINITION", },
 	{ CL_INVALID_KERNEL, "", },
 	{ CL_INVALID_ARG_INDEX , "", },
 	{ CL_INVALID_ARG_VALUE , "", },
@@ -90,25 +91,38 @@ class CIL_EXPORTS CLManager
 {
 public:
 	
-	static CLManager& getInstance();
+	static  CLManager& getInstance();
+	static int count;
 
 	virtual ~CLManager();
 
 	bool	initialize(const char* platform_filter=0);
 	void	cleanup();
 
-	CLMatrix* createMatrix(cl_uint n, cl_uint m, cl_uint access = CL_MEM_READ_WRITE);
+	CLMatrix* createMatrix(cl_uint n, cl_uint m,float* data =0, cl_uint access = CL_MEM_READ_WRITE );
+	
 	void destroyMatrix(CLMatrix* mx);
 
-	int matrixRandomFill(CLMatrix* mx, cl_uint seed = 0);
-	CLMatrix* m_m_mul(CLMatrix* mx,CLMatrix* my,CLMatrix* result=0);
-
+	int matrixRandomFill(CLMatrix* mx, cl_uint seed = rand());
+	int load_gpu_data(CLMatrix* mx,float*data);
+	
 	int status;
+	time_t					m_seed;
+
+public:
+	int load_mm_mult_kernel();
+	int isloaded_mm_mult_kernel() const {return m_kernel_mm_mult!=0;};
+	int matrix_matrix_multiplication(CLMatrix* A, CLMatrix* B, CLMatrix*C);
+private:
+	cl_kernel		m_kernel_mm_mult;
 
 private:
-	CLManager() : m_platforms_list(0), status(0)
+	CLManager() : 
+		m_platforms_list(0), status(0),
+		m_kernel_mm_mult(0), m_last_calc(0)
 	{
 		status = initialize();
+		m_seed = time(NULL);
 	};
 	
 	CLManager(CLManager const&);				// Don't Implement
@@ -118,6 +132,7 @@ private:
 	
 	std::vector<CLMatrix*> m_buffers;
 public:
+	cl_event			m_last_calc;
 	// OpenCL specific
 	cl_platform_id *	m_platforms_list;
 	cl_uint				m_num_platforms;
@@ -133,8 +148,8 @@ public:
 	cl_command_queue	m_cpu_queue;
 
 
-	cl_kernel			m_random_fill_kernel;
-	cl_kernel			m_matrix_multiplication_kernel;
+	cl_kernel			m_kernel_random_fill;
+	cl_kernel			m_kernel_nnfeedforward;
 
 };
 class CIL_EXPORTS CLMatrix
@@ -149,7 +164,7 @@ public:
 
 	Eigen::MatrixXf load_from_gpu()
 	{
-		Eigen::MatrixXf mat(m_rows,m_cols);
+		Eigen::Matrix<float,-1,-1,Eigen::RowMajor> mat(m_rows,m_cols);
 		clEnqueueReadBuffer(m_manager->m_gpu_queue_loader, m_buffer, CL_TRUE, 0, sizeof(float)*numel(), mat.data(), 0, NULL, NULL);	
 		return mat;	
 	}

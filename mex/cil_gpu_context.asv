@@ -1,0 +1,67 @@
+clear all;
+clc
+clear mex
+
+mex -DVERBOSE_DEBUG=1 ... 
+    -I'C:\Development\CIL\modules\core\include\' ...
+    -I'C:\Development\CIL\external\eigen-eigen-5097c01bcdc4\' ...
+    -I'..\modules\opencl\include\' ...
+    -I'C:\Program Files (x86)\Intel\OpenCL SDK\3.0\include' ...
+    -I'..\modules\algorithms\include\' ...
+    -L'C:/Program Files (x86)/Intel/OpenCL SDK/3.0/lib/x64/' ...
+    -L'C:\Development\CILbuild_x64\bin\release\' -lOpenCL -lcil_cl -lcil_core -lcil_alg  cil_gpu_context.cpp 
+%%
+gpu = cil_gpu_context;
+%%
+cil_gpu_context(0) %SHOULD ALWAYS RETURN 1; Please REPORT if not.
+
+%%
+mat = single(repmat((1:1024)',[1 3*1024]));%single(ones(256*4,3*1024));
+mat(1:3,1:3)
+A_handle = cil_gpu_context(gpu,'createGPUMatrix',mat);
+B_handle = cil_gpu_context(gpu,'createGPUMatrix',mat');
+C_handle = cil_gpu_context(gpu,'createGPUMatrix',ones(1024,1024,'single'));
+%%
+for n=1:100
+   clear TEST
+   tic
+   TEST = mat*mat';
+  % fprintf('hello world');
+   toc
+
+end
+%%
+tic
+for n=1
+cil_gpu_context(gpu,'GPUMatrixMult',A_handle,B_handle,C_handle);
+end
+%cil_gpu_context(gpu,'GPUWaitOnCalculations');
+toc
+
+tic
+result1 = cil_gpu_context(gpu,'loadGPUMatrix',C_handle);
+toc
+result1(1:10)
+TEST(1:10)
+
+%%
+cil_gpu_context(gpu,'clear');
+clear mex;
+%%
+%csvwrite('a.csv',mat,numel(mat),1);
+dlmwrite('a.csv',mat,'delimiter','\n','precision','%.6f');
+dlmwrite('b.csv',mat','delimiter','\n','precision','%.6f')
+dlmwrite('local.csv',zeros(1,3072),'delimiter','\n','precision','%.6f')
+%csvwrite('b.csv',mat');
+%csvwrite('a.csv',mat);
+
+
+%%
+M = 100, N = 1024, P = 1024;
+M = 1024*2, N = 1024*6, P = 1024*2;
+
+M1 = rand(M,N);
+M2 = rand(N,P);
+tic
+M3=M1*M2;
+toc*1000
