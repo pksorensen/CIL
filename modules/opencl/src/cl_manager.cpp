@@ -6,8 +6,10 @@
 using namespace cil;
 using namespace cl;
 
-
-
+#ifndef BLOCK_SIZE
+#define BLOCK_SIZE 16
+#define BLOCK_SIZE_STR "-DBLOCK_SIZE=16"
+#endif
 
 
 int CLManager::count = 0;
@@ -113,8 +115,8 @@ bool CLManager::initialize( const char* platform_filter)
 
 	size_t length[3] = {0};
 	const char * sourceStr[] = {
-		file2string("C:/Development/CIL/modules/opencl/kernels/matrix_random_fill.cl","",&length[0]),
-		file2string("C:/Development/CIL/modules/opencl/kernels/nn_feedforward.cl","",&length[1])
+		file2string("D:/GitHub/CIL/modules/opencl/kernels/matrix_random_fill.cl","",&length[0]),
+		file2string("D:/GitHub/CIL/modules/opencl/kernels/nn_feedforward.cl","",&length[1])
 							};
 
 	
@@ -129,7 +131,7 @@ bool CLManager::initialize( const char* platform_filter)
 	cl_int err = clBuildProgram (p, 
                   1,
 				  &m_gpu_device_id,
-                  "-IC:/Development/CIL/external/Random123-1.07/include -D ACTIVATION_FUNCTION(X)=(1.7159f*tanh(2.0f/3.0f*X))",   // Compiler options, see the specifications for more details
+                  "-ID:/GitHub/CIL/external/Random123-1.07/include -D ACTIVATION_FUNCTION(X)=(1.7159f*tanh(2.0f/3.0f*X))",   // Compiler options, see the specifications for more details
                  0, //void (*pfn_notify)(cl_program, void *user_data), 
                  0);
 	if ( err != CL_SUCCESS )
@@ -228,6 +230,7 @@ CLMatrix* CLManager::createMatrix(cl_uint m, cl_uint n, float* data,cl_uint acce
 void CLManager::destroyMatrix(CLMatrix* mx)
 {
 
+	clReleaseMemObject(mx->get_buffer());
 	m_buffers.erase(std::remove(m_buffers.begin(), m_buffers.end(), mx), m_buffers.end());
 	delete mx;
 }
@@ -243,7 +246,7 @@ int CLManager::load_mm_mult_kernel()
 
 	size_t length[1] = {0};
 	const char * sourceStr[] = {
-		file2string("C:/Development/CIL/modules/opencl/kernels/m_m_mul2.cl","",&length[0])
+		file2string("D:/GitHub/CIL/modules/opencl/kernels/m_m_mul2.cl","",&length[0])
 	};
 		
 	cl_program p= clCreateProgramWithSource( m_gpu_context,
@@ -257,7 +260,7 @@ int CLManager::load_mm_mult_kernel()
 	cl_int err = clBuildProgram (p, 
                   1,
 				  &m_gpu_device_id,
-                  "-DBLOCK_SIZE=16",
+                 BLOCK_SIZE_STR,
                  0, //void (*pfn_notify)(cl_program, void *user_data), 
                  0);
 	if ( err != CL_SUCCESS )
@@ -286,7 +289,7 @@ int CLManager::matrix_matrix_multiplication(CLMatrix* A, CLMatrix* B, CLMatrix*C
 	if (!isloaded_mm_mult_kernel())
 		load_mm_mult_kernel();
 	
-	int block_size = 16;
+	int block_size = BLOCK_SIZE;
 	size_t local_ws[] = {block_size,block_size};
 	size_t global_ws[] = {block_size,block_size};
 	while(global_ws[0] < B->m_cols)

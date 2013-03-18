@@ -62,9 +62,9 @@ void TrainingData::create_minibatches()
 	for(int n = 0; n<GPU_MINIBATCHES_SWAP_CHAIN;++n)
 	{
 		m_minibatch_swapchain[n] = m.createMatrix(
-			batch_size,num_attributes,CL_MEM_READ_ONLY);
+			batch_size,num_attributes,0,CL_MEM_READ_ONLY);
 		m_minibatch_targets_swapchain[n] = m.createMatrix(
-			batch_size,10,CL_MEM_READ_ONLY);
+			batch_size,10,0,CL_MEM_READ_ONLY);
 		
 		for(int j =0;j < batch_size;++j)
 		{
