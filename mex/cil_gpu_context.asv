@@ -58,10 +58,10 @@ dlmwrite('local.csv',zeros(1,3072),'delimiter','\n','precision','%.6f')
 
 %%
 M = 100, N = 1024, P = 1024;
-M = 1024*2, N = 1024*6, P = 1024*2;
+M = 1024*2*4, N = 1024*6*4, P = 1024*2*4;
 
 M1 = rand(M,N);
 M2 = rand(N,P);
 tic
 M3=M1*M2;
-toc*1000
+toc
